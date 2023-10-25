@@ -29,14 +29,14 @@ def build_conflict(queen_row, N):
         conflict[i] = numqueen_row[queen_row[i]] + numqueen_dia1[queen_row[i] - i + N] + numqueen_dia2[queen_row[i] + i] - 1
     return conflict
 
-def min_row_conflict(pickedCol, queen_row, N, numQueens):
+def min_row_conflict(pickedCol, queen_row, N):
     row_value = newArr(N) #How many queens conflict with this row
 
     #Add Random-Walk to prevent not go beyond local-minimum
     if (probabilistic_return(0.02) == True):
         return random.randint(0,N-1)
 
-    for i in range(numQueens):
+    for i in range(N):
         row_value[queen_row[i]] += 1
 
         if 0 <= queen_row[i] - i + pickedCol < N: 
@@ -64,24 +64,18 @@ def update_conflict(newRow, pickedCol, queen_row, conflict, N):
     
     queen_row[pickedCol] = newRow
 
-def heuristic_start_state(N):
-    queen_row = newArr(N)
-
-    for i in range(N):
-        newRow = min_row_conflict(i, queen_row, N, i)
-        queen_row[i] = newRow
-    return queen_row
-
 def initialize_start_state(N):
     queen_row = newArr(N)
-
+    r = 0
     for i in range(N):
-        queen_row[i] = random.randint(0,N-1)
+        queen_row[i] = r
+        r += 2
+        if r >= N: 
+            r = 0
     return queen_row
 
 def minConflict(N, maxStep = 1000000):
-    #queen_row = random_start_state(N) #Choose one of two ways to generate first state
-    queen_row = heuristic_start_state(N) #Choose one of two ways to generate first state
+    queen_row = initialize_start_state(N) 
     conflict = build_conflict(queen_row, N)
 
     for i in range(maxStep):
@@ -91,7 +85,7 @@ def minConflict(N, maxStep = 1000000):
         #Choose random conflict queen
         pickedCol = random.choice([pos for pos in range(N) if conflict[pos] > 0]) #O(n)
         #Choose new row with min conflict
-        newRow = min_row_conflict(pickedCol, queen_row, N, N) #O(n)
+        newRow = min_row_conflict(pickedCol, queen_row, N) #O(n)
         #Update conflict list
         update_conflict(newRow, pickedCol, queen_row, conflict, N) #O(n)
 
